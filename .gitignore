@@ -1,0 +1,5 @@
+*.pyc
+.*.swp
+.*.swo
+uome/settings.py
+uome/db/
