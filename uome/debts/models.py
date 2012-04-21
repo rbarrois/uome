@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 def get_user_model():
+    """Retrieve the DEBT_USER_MODEL from settings."""
     return getattr(settings, 'DEBT_USER_MODEL', 'auth.User')
 
 
@@ -20,11 +21,15 @@ class Person(models.Model):
     first_name = models.CharField(max_length=30, verbose_name=_(u"first name"))
     last_name = models.CharField(max_length=30, verbose_name=_(u"last name"))
 
-    def get_full_name(self):
-        return u'%s %s' % (self.first_name, self.last_name)
+    class Meta:
+        verbose_name = _(u"person")
+        verbose_name_plural = _(u"persons")
 
     def __unicode__(self):
         return self.get_full_name()
+
+    def get_full_name(self):
+        return u'%s %s' % (self.first_name, self.last_name)
 
 
 class UserProxy(models.Model):
@@ -104,6 +109,10 @@ class MoneyDebt(GenericDebt):
     motive = models.CharField(max_length=255, verbose_name=_(u"motive"))
     currency = models.CharField(max_length=10, choices=CURRENCIES, verbose_name=_(u"currency"))
     amount = models.IntegerField(verbose_name=_(u"amount (in cents)"))
+
+    class Meta:
+        verbose_name = _(u"money debt")
+        verbose_name_plural = _(u"money debts")
 
     def __unicode__(self):
         return u"%s %s to %s on %s (%s)" % ()
