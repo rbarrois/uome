@@ -3,3 +3,4 @@
 .*.swo
 uome/settings.py
 uome/db/
+*.mo
