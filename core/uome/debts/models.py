@@ -115,7 +115,7 @@ class MoneyDebt(GenericDebt):
         verbose_name_plural = _(u"money debts")
 
     def __unicode__(self):
-        return u"%s %s to %s on %s (%s)" % ()
+        return u"%s for %s to %s on %s (%s)" % (self.amount_text(), self.motive, self.owed_by, self.given_on, self.status)
 
     def amount_text(self, locale=None):
         """Presents the 'amount' in a suitable manner for humans."""

@@ -1,6 +1,6 @@
 *.pyc
 .*.swp
 .*.swo
-uome/settings.py
-uome/db/
+settings.py
+*.sqlite3
 *.mo
