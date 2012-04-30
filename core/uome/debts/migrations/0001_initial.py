@@ -8,68 +8,51 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Person'
-        db.create_table('debts_person', (
+        # Adding model 'Friend'
+        db.create_table('debts_friend', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=30)),
+            ('friend_of', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friends', to=orm['accounts.Account'])),
+            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('nickname', self.gf('django.db.models.fields.CharField')(max_length=30)),
         ))
-        db.send_create_signal('debts', ['Person'])
+        db.send_create_signal('debts', ['Friend'])
 
-        # Adding model 'UserProxy'
-        db.create_table('debts_userproxy', (
+        # Adding unique constraint on 'Friend', fields ['friend_of', 'nickname']
+        db.create_unique('debts_friend', ['friend_of_id', 'nickname'])
+
+        # Adding model 'Debt'
+        db.create_table('debts_debt', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('auth_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='proxies', to=orm['auth.User'])),
-            ('virtual_user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='proxies', null=True, to=orm['debts.Person'])),
-        ))
-        db.send_create_signal('debts', ['UserProxy'])
-
-        # Adding unique constraint on 'UserProxy', fields ['auth_user', 'virtual_user']
-        db.create_unique('debts_userproxy', ['auth_user_id', 'virtual_user_id'])
-
-        # Adding model 'MoneyDebt'
-        db.create_table('debts_moneydebt', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('owed_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owes_moneydebt', to=orm['debts.UserProxy'])),
-            ('owed_to', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owed_moneydebt', to=orm['debts.UserProxy'])),
-            ('given_on', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('expected_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('returned_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('account', self.gf('django.db.models.fields.related.ForeignKey')(related_name='debt', to=orm['accounts.Account'])),
+            ('friend', self.gf('django.db.models.fields.related.ForeignKey')(related_name='debt', to=orm['debts.Friend'])),
+            ('direction', self.gf('django.db.models.fields.CharField')(default='FRIEND_OWES_USER', max_length=20)),
             ('motive', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('currency', self.gf('django.db.models.fields.CharField')(max_length=10)),
-            ('amount', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('debts', ['MoneyDebt'])
-
-        # Adding model 'ObjectDebt'
-        db.create_table('debts_objectdebt', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('owed_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owes_objectdebt', to=orm['debts.UserProxy'])),
-            ('owed_to', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owed_objectdebt', to=orm['debts.UserProxy'])),
+            ('currency', self.gf('django.db.models.fields.CharField')(max_length=10, null=True, blank=True)),
+            ('amount', self.gf('django.db.models.fields.IntegerField')(null=True)),
             ('given_on', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('expected_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('returned_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('what', self.gf('django.db.models.fields.CharField')(max_length=255)),
         ))
-        db.send_create_signal('debts', ['ObjectDebt'])
+        db.send_create_signal('debts', ['Debt'])
 
     def backwards(self, orm):
-        # Removing unique constraint on 'UserProxy', fields ['auth_user', 'virtual_user']
-        db.delete_unique('debts_userproxy', ['auth_user_id', 'virtual_user_id'])
+        # Removing unique constraint on 'Friend', fields ['friend_of', 'nickname']
+        db.delete_unique('debts_friend', ['friend_of_id', 'nickname'])
 
-        # Deleting model 'Person'
-        db.delete_table('debts_person')
+        # Deleting model 'Friend'
+        db.delete_table('debts_friend')
 
-        # Deleting model 'UserProxy'
-        db.delete_table('debts_userproxy')
-
-        # Deleting model 'MoneyDebt'
-        db.delete_table('debts_moneydebt')
-
-        # Deleting model 'ObjectDebt'
-        db.delete_table('debts_objectdebt')
+        # Deleting model 'Debt'
+        db.delete_table('debts_debt')
 
     models = {
+        'accounts.account': {
+            'Meta': {'object_name': 'Account'},
+            'display_name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'account'", 'unique': 'True', 'to': "orm['auth.User']"})
+        },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -106,39 +89,26 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'debts.moneydebt': {
-            'Meta': {'object_name': 'MoneyDebt'},
-            'amount': ('django.db.models.fields.IntegerField', [], {}),
-            'currency': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
+        'debts.debt': {
+            'Meta': {'object_name': 'Debt'},
+            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'debt'", 'to': "orm['accounts.Account']"}),
+            'amount': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
+            'currency': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True', 'blank': 'True'}),
+            'direction': ('django.db.models.fields.CharField', [], {'default': "'FRIEND_OWES_USER'", 'max_length': '20'}),
             'expected_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'friend': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'debt'", 'to': "orm['debts.Friend']"}),
             'given_on': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'motive': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'owed_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owes_moneydebt'", 'to': "orm['debts.UserProxy']"}),
-            'owed_to': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owed_moneydebt'", 'to': "orm['debts.UserProxy']"}),
             'returned_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         },
-        'debts.objectdebt': {
-            'Meta': {'object_name': 'ObjectDebt'},
-            'expected_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'given_on': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+        'debts.friend': {
+            'Meta': {'unique_together': "(('friend_of', 'nickname'),)", 'object_name': 'Friend'},
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'friend_of': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friends'", 'to': "orm['accounts.Account']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'owed_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owes_objectdebt'", 'to': "orm['debts.UserProxy']"}),
-            'owed_to': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owed_objectdebt'", 'to': "orm['debts.UserProxy']"}),
-            'returned_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'what': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        'debts.person': {
-            'Meta': {'object_name': 'Person'},
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30'})
-        },
-        'debts.userproxy': {
-            'Meta': {'unique_together': "(('auth_user', 'virtual_user'),)", 'object_name': 'UserProxy'},
-            'auth_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'proxies'", 'to': "orm['auth.User']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'virtual_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'proxies'", 'null': 'True', 'to': "orm['debts.Person']"})
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'nickname': ('django.db.models.fields.CharField', [], {'max_length': '30'})
         }
     }
 

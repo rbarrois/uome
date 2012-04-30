@@ -117,6 +117,7 @@ INSTALLED_APPS = (
 
     'south',
 
+    'uome.accounts',
     'uome.debts',
 )
 
