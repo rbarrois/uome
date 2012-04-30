@@ -43,14 +43,3 @@ class FriendResource(resources.Resource):
 
     def get_object_list(self, request):
         return UserProxy.objects.filter(auth_user=request.user)
-
-
-
-class Friend(object):
-    def __init__(self, user):
-        self.user = user
-
-    def all(self):
-        data = []
-        for person in user.proxies.exclude(virtual_user=None):
-            data.append(self.
