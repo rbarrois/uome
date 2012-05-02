@@ -24,7 +24,7 @@ response = oauth2_handler.get_token(code, grant_type='authorization_code')
 access_token = response['access_token']
 refresh_token = response['refresh_token']
 
-oauth2_client = requests.session(headers={'OAuthorization': 'Bearer %s' % response['access_token']}, auth=(client_id, client_secret))
+oauth2_client = requests.session(headers={'Authorization': 'Bearer %s' % response['access_token']})
 r = oauth2_client.get('http://localhost:8000/api/v1.0/account/?format=json')
 print "Sending: "
 print r.request.headers
