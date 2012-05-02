@@ -88,7 +88,7 @@ class Debt(models.Model):
 
     def clean(self):
         # Account
-        if self.friend.account != self.account:
+        if self.friend.friend_of != self.account:
             raise ValidationError("A debt's friend and account fields must match.")
 
         # Amount/currency
@@ -97,11 +97,11 @@ class Debt(models.Model):
         elif not self.currency:
             raise ValidationError("Debts with an amount must specify a currency.")
 
-        return super(GenericDebt, self).clean()
+        return super(Debt, self).clean()
 
     def save(self, *args, **kwargs):
         self.clean()
-        return super(GenericDebt, self).save(*args, **kwargs)
+        return super(Debt, self).save(*args, **kwargs)
 
     def amount_text(self, locale=None):
         """Presents the 'amount' in a suitable manner for humans."""
