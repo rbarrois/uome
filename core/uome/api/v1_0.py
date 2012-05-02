@@ -12,6 +12,15 @@ from tastypie import resources
 from uome.debts import models as debts_models
 from uome.accounts import models as accounts_models
 
+from . import authentication
+from . import authorization
+
+
+class AccessControlMeta(object):
+    authentication = authentication.OAuth2ProviderAuthentication(realm='')
+    authorization = authorization.OAuthScopeAuthorization()
+
+
 class AccountResource(resources.Resource):
     """Accesses a user profile.
 
@@ -24,7 +33,7 @@ class AccountResource(resources.Resource):
     nickname = fields.CharField(attribute='display_name', null=True)
     email = fields.CharField(attribute='email')
 
-    class Meta:
+    class Meta(AccessControlMeta):
         resource_name = 'account'
         object_class = accounts_models.Account
 
@@ -45,7 +54,7 @@ class AccountResource(resources.Resource):
         return self._build_reverse_url('api_dispatch_detail', kwargs=kwargs)
 
     def get_object_list(self, request):
-        return self._meta.object_class.objects.filter()  # TODO
+        return self._meta.object_class.objects.filter(user=request.user)
 
     def obj_get_list(self, request=None, **kwargs):
         """Retrieve a list of objects."""
@@ -72,7 +81,7 @@ class FriendResource(resources.Resource):
     nickname = fields.CharField(attribute='nickname')
     friend_of = fields.ToOneField(AccountResource, attribute='friend_of')
 
-    class Meta:
+    class Meta(AccessControlMeta):
         resource_name = 'friend'
         object_class = debts_models.Friend
 
@@ -124,7 +133,7 @@ class DebtResource(resources.Resource):
     currency = fields.CharField(attribute='currency', null=True)
     amount = fields.IntegerField(attribute='amount', null=True)
 
-    class Meta:
+    class Meta(AccessControlMeta):
         resource_name = 'debt'
         object_class = debts_models.Debt
 
