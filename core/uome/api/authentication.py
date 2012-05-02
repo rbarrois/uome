@@ -13,27 +13,10 @@ from tastypie import http
 bearer_re = re.compile(r'^Bearer\s+(\w+)$')
 
 
-class ClientAuthenticator(object):
-    def authenticate(self, username, password):
-        client_qs = provider_models.Client.objects.filter(
-            client_id=username, client_secret=password,
-            user__is_active=True)
-        if client_qs:
-            return client_qs.get().user
-        else:
-            return None
-
-    def get_user(self, user_id):
-        pass
-
-
-class OAuth2ProviderAuthentication(tastypie_authentication.BasicAuthentication):
-
-    def __init__(self, realm='uome'):
-        backend = ClientAuthenticator()
-        super(OAuth2ProviderAuthentication, self).__init__(backend, realm)
+class OAuth2ProviderAuthentication(tastypie_authentication.Authentication):
 
     def _extract_token(self, request):
+        """Extract a 'Bearer' token from the Authorization header."""
         token_header = request.META['HTTP_AUTHORIZATION']
         bearer_match = bearer_re.match(token_header)
         if bearer_match:
@@ -41,10 +24,9 @@ class OAuth2ProviderAuthentication(tastypie_authentication.BasicAuthentication):
         else:
             return None
 
-
     def is_authenticated(self, request, **kwargs):
-
         token_text = self._extract_token(request)
+
         if not token_text:
             return http.HttpUnauthorized(
                 "error: invalid_request\n"

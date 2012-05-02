@@ -17,8 +17,9 @@ from . import authorization
 
 
 class AccessControlMeta(object):
+    """Use OAuth2 token/scope checks."""
     authentication = authentication.OAuth2ProviderAuthentication(realm='')
-    authorization = authorization.OAuthScopeAuthorization()
+    authorization = authorization.OAuth2ScopeAuthorization()
 
 
 class AccountResource(resources.Resource):

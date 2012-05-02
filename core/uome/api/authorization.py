@@ -8,7 +8,7 @@ from provider import constants as provider_constants
 from tastypie import authorization as tastypie_authorization
 
 
-class OAuthScopeAuthorization(tastypie_authorization.Authorization):
+class OAuth2ScopeAuthorization(tastypie_authorization.Authorization):
 
     def is_authorized(self, request, object=None):
         if request.method == 'GET':
