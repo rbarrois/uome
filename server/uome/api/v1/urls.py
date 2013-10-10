@@ -10,6 +10,7 @@ from . import views
 
 router = rf_routers.DefaultRouter()
 router.register(r'debts', views.DebtViewSet)
+router.register(r'friends', views.FriendViewSet)
 
 
 urlpatterns = patterns('',

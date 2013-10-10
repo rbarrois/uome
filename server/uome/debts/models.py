@@ -12,6 +12,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from uome.accounts import models as accounts_models
 
+
+class FriendManager(models.Manager):
+    def for_account(self, account):
+        return self.filter(friend_of=account)
+
+
 class Friend(models.Model):
     """A non-user person."""
     friend_of = models.ForeignKey(accounts_models.Account, related_name='friends',
@@ -19,6 +25,8 @@ class Friend(models.Model):
     first_name = models.CharField(max_length=50, verbose_name=_(u"first name"))
     last_name = models.CharField(max_length=50, verbose_name=_(u"last name"))
     nickname = models.CharField(max_length=30, verbose_name=_(u"nickname"))
+
+    objects = FriendManager()
 
     class Meta:
         verbose_name = _(u"friend")

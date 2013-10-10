@@ -15,3 +15,15 @@ class DebtSerializer(serializers.ModelSerializer):
             'friend', 'direction', 'motive', 'currency', 'amount',
             'given_on', 'expected_on', 'returned_on',
         )
+
+    def get_related_field(self, model_field, related_model, to_many):
+        field = super(DebtSerializer, self).get_related_field(model_field, related_model, to_many)
+        if related_model is debts_models.Friend:
+            field.queryset = field.queryset.for_account(self.context['account'])
+        return field
+
+
+class FriendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = debts_models.Friend
+        fields = ('first_name', 'last_name', 'nickname')
