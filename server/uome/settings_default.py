@@ -119,6 +119,8 @@ INSTALLED_APPS = (
 
     'uome.accounts',
     'uome.debts',
+
+    'rest_framework',
 )
 
 # A sample logging configuration. The only tangible logging

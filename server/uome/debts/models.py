@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Raphaël Barrois
 
-import datetime
 import decimal
 
 from babel import numbers as babel_numbers
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from uome.accounts import models as accounts_models
@@ -30,6 +30,11 @@ class Friend(models.Model):
 
     def get_full_name(self):
         return u'Friend %s of %s' % (self.nickname, self.friend_of.username)
+
+
+class DebtManager(models.Manager):
+    def for_account(self, account):
+        return self.filter(account=account)
 
 
 class Debt(models.Model):
@@ -67,9 +72,11 @@ class Debt(models.Model):
     amount = models.IntegerField(null=True, verbose_name=_(u"amount (in cents)"))
 
 
-    given_on = models.DateTimeField(default=datetime.datetime.now, verbose_name=_(u"given on"))
+    given_on = models.DateTimeField(default=timezone.now, verbose_name=_(u"given on"))
     expected_on = models.DateTimeField(blank=True, null=True, verbose_name=_(u"return expected on"))
     returned_on = models.DateTimeField(blank=True, null=True, verbose_name=_(u"returned on"))
+
+    objects = DebtManager()
 
     class Meta:
         verbose_name = _(u"debt")
@@ -117,7 +124,7 @@ class Debt(models.Model):
         """Status of the debt."""
         if self.returned:
             return _(u"Returned")
-        elif self.expected_on is not None and self.expected_on < datetime.datetime.now():
+        elif self.expected_on is not None and self.expected_on < timezone.now():
             return _(u"Overdue")
         else:
             return _(u"Due")

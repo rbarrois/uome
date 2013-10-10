@@ -1,7 +1,10 @@
-django>=1.4
+django>=1.5
 djangorestframework
 babel
 South
+
+factory_boy
+
 #django-oauth2-provider
 
 #requests-oauth2
