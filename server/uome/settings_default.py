@@ -117,9 +117,6 @@ INSTALLED_APPS = (
 
     'south',
 
-    'provider',
-    'provider.oauth2',
-
     'uome.accounts',
     'uome.debts',
 )
