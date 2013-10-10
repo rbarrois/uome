@@ -1,0 +1,7 @@
+django>=1.4
+djangorestframework
+babel
+South
+#django-oauth2-provider
+
+#requests-oauth2

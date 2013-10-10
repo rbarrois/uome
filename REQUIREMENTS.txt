@@ -1,5 +1,0 @@
-django>=1.4
-django-tastypie
-django-oauth2-provider
-
-requests-oauth2
